@@ -87,11 +87,12 @@
     (dynaload/load-ns (symbol (str "cognitect.aws.protocols." (get-in service [:metadata :protocol]))))
     (client/->Client
      (atom {'clojure.core.protocols/datafy (fn [c]
-                                             (let [i (client/-get-info c)]
+                                             (let [i (client/-get-info c)
+                                                   region (-> i :region-provider region/fetch)]
                                                (-> i
                                                    (select-keys [:service])
-                                                   (assoc :region (-> i :region-provider region/fetch)
-                                                          :endpoint (-> i :endpoint-provider endpoint/fetch))
+                                                   (assoc :region region
+                                                          :endpoint (-> i :endpoint-provider (endpoint/fetch region)))
                                                    (update :endpoint select-keys [:hostname :protocols :signatureVersions])
                                                    (update :service select-keys [:metadata])
                                                    (assoc :ops (ops c)))))})
