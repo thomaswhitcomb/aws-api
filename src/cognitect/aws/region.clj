@@ -40,12 +40,15 @@
                           {:providers (map class providers)}))))))
 
 (defn environment-region-provider
-  "Returns the region from the AWS_REGION env var, or nil if not present.
+  "Returns the region from the AWS_REGION env var first,
+   the AWS_DEFAULT_REGION env var second, or nil if not present in
+   either env var.
 
   Alpha. Subject to change."
   []
   (reify RegionProvider
-    (fetch [_] (valid-region (u/getenv "AWS_REGION")))))
+    (fetch [_] (valid-region (or (u/getenv "AWS_REGION")
+                                 (u/getenv "AWS_DEFAULT_REGION")))))
 
 (defn system-property-region-provider
   "Returns the region from the aws.region system property, or nil if not present.
